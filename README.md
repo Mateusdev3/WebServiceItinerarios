@@ -197,7 +197,7 @@ npm run lint     # Executa a verificação de lint
 | ------------------------- | -------------------------------------------------------------------------------- |
 | `NEXT_PUBLIC_TOKEN_TACOM` | Token utilizado para autenticação nas requisições da API externa de itinerários. |
 
-> Atenção: não publique tokens reais no GitHub. Mantenha o arquivo `.env.local` fora do versionamento.
+
 
 ## Observação sobre segurança
 
