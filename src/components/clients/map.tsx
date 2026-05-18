@@ -4,14 +4,17 @@ import  Map, { Source, Layer } from "react-map-gl/maplibre";
 import type { Feature, FeatureCollection, LineString, Point } from "geojson"
 
 interface MapProps{
-    routeA: number[][];
-    routeB: number[][];
-    deviations: number[][];
+    routeA?: number[][] ;
+    routeB?: number[][];
+    deviations?: number[][];
 
 
 }
 
 export function ShowMap({routeA, routeB, deviations}: MapProps) {
+  if (!routeA || !routeB || !deviations) {
+    return null;
+  }
 
     const routeAGeo: Feature<LineString> = {
     type: "Feature",
@@ -51,7 +54,7 @@ export function ShowMap({routeA, routeB, deviations}: MapProps) {
         zoom: 14
       }}
       style={{ width: "100%", height: "100vh" }}
-      mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+      mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json" cursor=""
     >
 
       <Source id="routeA" type="geojson" data={routeAGeo}>
@@ -59,8 +62,8 @@ export function ShowMap({routeA, routeB, deviations}: MapProps) {
           id="routeA-line"
           type="line"
           paint={{
-            "line-color": "#0066ff",
-            "line-width": 4
+            "line-color": "#ff0000",
+            "line-width": 8
           }}
         />
       </Source>
@@ -70,8 +73,8 @@ export function ShowMap({routeA, routeB, deviations}: MapProps) {
           id="routeB-line"
           type="line"
           paint={{
-            "line-color": "#ff0000",
-            "line-width": 4
+            "line-color": " #0066ff",
+            "line-width": 5
           }}
         />
       </Source>
@@ -82,13 +85,11 @@ export function ShowMap({routeA, routeB, deviations}: MapProps) {
           id="deviation-points"
           type="circle"
           paint={{
-            "circle-radius": 4,
+            "circle-radius": 5,
             "circle-color": "#fff000"
           }}
         />
       </Source>
-
-    
     </Map>
     )
 }

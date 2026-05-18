@@ -16,8 +16,10 @@ export function getDistanceDetour({ cordA, cordB }: CordsProps) {
 
   const dev: Coord[] = []
 
-  const lengthA = turf.length(lineA, { units: "meters" })
-  const lengthB = turf.length(lineB, { units: "meters" })
+  const lengthA = turf.length(lineA, { units: "kilometers" })
+  const lengthB = turf.length(lineB, { units: "kilometers" })
+
+  console.log(lengthA)
 
   cordA.forEach(a => {
 
@@ -27,14 +29,22 @@ export function getDistanceDetour({ cordA, cordB }: CordsProps) {
 
     const dist = turf.distance(point, snapped, { units: "meters" })
 
-    
-    if (dist > 30) {
-
-      console.log(`${dist.toFixed(2)} metros de desvio`)
+    if (dist > 50) {
       dev.push(a)
 
     }
+  })
 
+  cordB.forEach(b => {
+    const point =  turf.point(b)
+
+    const snapped = turf.nearestPointOnLine(lineA, point)
+
+    const dist = turf.distance(point, snapped, {units: "meters"})
+
+    if(dist > 50 ){
+      dev.push(b)
+    }
   })
 
   console.log("Tamanho A:", lengthA)

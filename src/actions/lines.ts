@@ -58,7 +58,8 @@ export async function getTacomiTinerary(lines: FormattedPlacemark[]) {
         const results: Array<string | { erro: true }> = [];
 
         for (const l of lines) {
-            const response = await fetch("https://citgisnext.sitbus.com.br:9998/citgis-report-service-bhz/ecitbus/relatorio/dispatcherKML", {
+            if(l.ExtendedData.SchemaData.id != ''){
+                const response = await fetch("https://citgisnext.sitbus.com.br:9998/citgis-report-service-bhz/ecitbus/relatorio/dispatcherKML", {
                 method: "POST",
                 headers: {
                     "accept": "*/*",
@@ -75,14 +76,18 @@ export async function getTacomiTinerary(lines: FormattedPlacemark[]) {
                     idRelatorio: 12
                 }),
             });
-            const text = await response.text();
-            console.log(text)
+            if(response.ok){
+                const text = await response.text();
+            console.log(l.ExtendedData.SchemaData.id)
             results.push(text);
+            }
+            }
         }
-
         return results;
     } catch (erro) {
+        
         console.log(erro);
         throw new Error("Erro ao buscar cordenadas tacom");
+       
     }
 }
