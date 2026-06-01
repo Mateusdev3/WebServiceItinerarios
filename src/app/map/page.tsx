@@ -22,6 +22,8 @@ export default function Map() {
             setRouteA(rA)
             setDesviations(dev)
         }
+
+        console.log(r)
     }, [])
     return (
         <>

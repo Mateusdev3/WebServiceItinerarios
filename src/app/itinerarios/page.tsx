@@ -11,7 +11,7 @@ import { getLineId, getTacomiTinerary } from "@/actions/lines";
 import { FormattedPlacemark, PlacemarkProps, TacomDataResponseProps } from "@/lib/types/types";
 import { getDistanceDetour } from "@/actions/compareRoutes";
 import { useRouter } from "next/navigation";
-import { Loader2Icon } from "lucide-react";
+import {Input as InputUi} from "@/components/ui/input";
 import { format } from '../../../node_modules/date-fns'
 import ExcelJS from 'exceljs'
 
@@ -26,6 +26,7 @@ export default function Itinerarios() {
   const [percentLoad, setPercentLoad] = useState(0)
   const [result, setResut] = useState(false)
   const [det, setDet] = useState(false)
+  const [tol, setTol] = useState<number>(50)
   const router = useRouter();
   const workbook = new ExcelJS.Workbook();
 
@@ -46,7 +47,7 @@ export default function Itinerarios() {
 
     const simulateProgress = setInterval(() => {
       setPercentLoad(prev => {
-        if (prev < 95) return prev + Math.random() * 15
+        if (prev < 80) return prev + Math.random() * 15
         return prev
       })
     }, 300)
@@ -76,7 +77,6 @@ export default function Itinerarios() {
   async function formatPlacemark(placemarks: PlacemarkProps[]) {
     return placemarks.map((p, i) => ({
       ...p,
-
       ExtendedData: {
         SchemaData: {
 
@@ -146,26 +146,35 @@ export default function Itinerarios() {
 
         const pc1Name = jsonFormated.name.split(" ")
 
-        if (pc1Name.includes("IDA")) {
+        if (pc1Name.includes("IDA") || pc1Name.includes("ida")) {
           jsonFormated.pc = "1"
           const formated = await formatTacomData(jsonFormated)
           dataTacom.push(...formated)
-        } else if (pc1Name.includes("VOLTA")) {
+        } else if (pc1Name.includes("VOLTA") || pc1Name.includes("volta")) {
           jsonFormated.pc = "2"
+          const formated = await formatTacomData(jsonFormated)
+          dataTacom.push(...formated)
+        }
+        else{
+          jsonFormated.pc = "1"
           const formated = await formatTacomData(jsonFormated)
           dataTacom.push(...formated)
         }
 
 
-        if (pc2Name.includes("VOLTA")) {
+        if (pc2Name.includes("VOLTA") || pc2Name.includes("volta")) {
           pc2.pc = "2"
           const formated = await formatTacomData(pc2)
           console.log(pc2)
           dataTacom.push(...formated)
-        } else if (pc2Name.includes("IDA")) {
+        } else if (pc2Name.includes("IDA") || pc2Name.includes("ida")) {
           pc2.pc = "1"
           const formated = await formatTacomData(pc2)
           console.log(pc2)
+          dataTacom.push(...formated)
+        } else{
+          pc2.pc = "1"
+          const formated = await formatTacomData(jsonFormated)
           dataTacom.push(...formated)
         }
         console.log(jsonFormated)
@@ -257,7 +266,7 @@ export default function Itinerarios() {
         const sumob = p.LineString.coordinates;
         const tacom = p.LineString.coordinatesTacom;
         if (tacom) {
-          const points = getDistanceDetour({ cordA: sumob, cordB: tacom });
+          const points = getDistanceDetour({ cordA: sumob, cordB: tacom, tol: tol });
           p.LineString.deviations = points;
           if (points?.length) {
             deviatedLines.push(p);
@@ -268,7 +277,6 @@ export default function Itinerarios() {
 
       });
       setPlacemark(place);
-      const reportContent = await buildDeviationReport(place);
       setPercentLoad(percent)
 
     }
@@ -294,7 +302,9 @@ export default function Itinerarios() {
     setResut(false)
   }
 
+
   return (
+    
     <div className="w-full h-full text-white flex justify-center flex-col items-center">
 
       {loading && (
@@ -342,16 +352,27 @@ export default function Itinerarios() {
               </TableBody>
             </Table>
           </div>
-          <Button className="bg-black text-white px-4 py-2 rounded-md font-bold border border-white hover:bg-white hover:text-black transition-colors" onClick={handleClear}>
+          <div className="space-x-3"> <Button className="bg-black  text-white min-w-35 py-2 rounded-md font-bold border border-white hover:bg-white hover:text-black transition-colors" onClick={() => setDet(false)} >
             Voltar
           </Button>
+          <Button className="bg-black text-white py-2 rounded-md min-w-35 font-bold border border-white hover:bg-white hover:text-black transition-colors" onClick={handleClear}>
+            Reiniciar
+          </Button>
+
+           <Button className="bg-black text-white min-w-35 px-4 py-2 rounded-md font-bold border border-white hover:bg-white hover:text-black transition-colors"
+            onClick={() => buildDeviationReport(placemark)}>
+            Gerar relatório
+          </Button>
+          
+          </div>
+         
         </div>
       )}
       {result && isup && !loading && !det && (
         <div className="w-full h-full flex flex-col justify-center items-center gap-8 bg-linear-to-b from-app-background to-black py-20">
           <div className="px-12 max-w-2xl">
-            <h1 className="text-white text-6xl font-bold mb-8">Resultados</h1>
-            <div className="flex flex-col gap-6 bg-black rounded-lg p-8 border border-white">
+            <h1 className="text-white text-6xl font-bold mb-8 text-center">Resultados</h1>
+            <div className="flex flex-col gap-6 bg-black rounded-lg p-8 border w-120 border-white">
               <div className="flex items-center justify-between">
                 <span className="text-white text-lg">Linhas processadas:</span>
                 <span className="text-white text-2xl font-bold">{placemark.length}</span>
@@ -361,16 +382,28 @@ export default function Itinerarios() {
                 <span className="text-white text-lg">Desvios encontrados:</span>
                 <span className="text-white text-2xl font-bold">{placemark.filter(p => p.LineString.deviations && p.LineString.deviations.length > 0).length}</span>
               </div>
+              <div className="h-px bg-white"></div>
+              <div className="flex items-center justify-between">
+                <span className="text-white text-lg">Tolerância em metros:</span>
+                <span className="text-white text-2xl font-bold">{tol}</span>
+              </div>
             </div>
           </div>
           <Button className="mt-8 bg-black text-white border border-white px-12 py-3 rounded-lg font-bold text-xl hover:bg-white hover:text-black transition-colors duration-200" onClick={() => setDet(true)}>
-            Ver Detalhes
+            Ver detalhes
           </Button>
         </div>
       )}
 
       {!isup && !loading && (
-        <div className="w-full h-full flex flex-col justify-center items-center bg-app-background">
+        <div className="w-full h-full flex flex-col justify-center items-center bg-app-background ">
+          <div className="flex items-center border  rounded-md absolute mr-410 mb-215 px-4">
+            <span className="font-bold ">Tolerância:</span>
+            <InputUi type="number" value={tol}  onChange={(e) => {setTol(Number(e.target.value))}} className="border-hidden w-12"/> 
+             <span className="font-bold ">metros</span>
+
+          </div>
+          
           <h1 className="text-4xl mb-8 font-bold text-white">Insira o arquivo KML</h1>
           <div className="w-7/12 h-5/12 border-2 border-white rounded-md flex justify-center items-center border-dashed">
             <UploadCloudIcon className="absolute text-white" width={200} height={200} />

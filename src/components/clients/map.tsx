@@ -12,7 +12,10 @@ interface MapProps{
 }
 
 export function ShowMap({routeA, routeB, deviations}: MapProps) {
-  if (!routeA || !routeB || !deviations) {
+  if(!deviations){
+    deviations = []
+  }
+  if (!routeB || !deviations || !routeA) {
     return null;
   }
 
@@ -21,7 +24,7 @@ export function ShowMap({routeA, routeB, deviations}: MapProps) {
     properties: {},
     geometry: {
       type: "LineString",
-      coordinates: routeA
+      coordinates: routeA!
     }
   }
 
@@ -30,11 +33,11 @@ export function ShowMap({routeA, routeB, deviations}: MapProps) {
     properties: {},
     geometry: {
       type: "LineString",
-      coordinates: routeB
+      coordinates: routeB ?? []
     }
   }
 
-   const devPoints: FeatureCollection<Point> = {
+  const devPoints: FeatureCollection<Point> = {
     type: "FeatureCollection",
     features: deviations.map(p => ({
       type: "Feature",
@@ -43,14 +46,14 @@ export function ShowMap({routeA, routeB, deviations}: MapProps) {
         type: "Point",
         coordinates: p
       }
-    }))
+    })) 
   }
 
     return(
        <Map
       initialViewState={{
-        longitude: routeA[0][0],
-        latitude: routeA[0][1],
+        longitude: routeA![0][0],
+        latitude: routeA![0][1],
         zoom: 14
       }}
       style={{ width: "100%", height: "100vh" }}

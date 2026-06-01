@@ -7,9 +7,10 @@ type Coord = number[]
 interface CordsProps {
   cordA: number[][]
   cordB: number[][]
+  tol:  number;
 }
 
-export function getDistanceDetour({ cordA, cordB }: CordsProps) {
+export function getDistanceDetour({ cordA, cordB, tol }: CordsProps) {
 
   const lineA = turf.lineString(cordA)
   const lineB = turf.lineString(cordB)
@@ -29,7 +30,7 @@ export function getDistanceDetour({ cordA, cordB }: CordsProps) {
 
     const dist = turf.distance(point, snapped, { units: "meters" })
 
-    if (dist > 50) {
+    if (dist > tol) {
       dev.push(a)
 
     }
@@ -42,7 +43,7 @@ export function getDistanceDetour({ cordA, cordB }: CordsProps) {
 
     const dist = turf.distance(point, snapped, {units: "meters"})
 
-    if(dist > 50 ){
+    if(dist > tol ){
       dev.push(b)
     }
   })
