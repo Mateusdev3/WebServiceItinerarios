@@ -399,7 +399,7 @@ export default function Itinerarios() {
         <div className="w-full h-full flex flex-col justify-center items-center bg-app-background ">
           <div className="flex items-center border  rounded-md absolute mr-410 mb-215 px-4">
             <span className="font-bold ">Tolerância:</span>
-            <InputUi type="number" value={tol}  onChange={(e) => {setTol(Number(e.target.value))}} className="border-hidden w-12"/> 
+            <InputUi type="number" value={tol}  onChange={(e) => {setTol(Number(e.target.value))}} className="border-hidden w-14"/> 
              <span className="font-bold ">metros</span>
 
           </div>
