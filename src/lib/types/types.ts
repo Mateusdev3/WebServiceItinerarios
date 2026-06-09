@@ -33,12 +33,23 @@ export interface FormattedPlacemark {
             SimpleData: string;
             key?: number;
             pc: string;
+            sumobDistance?: number;
+            tacomDistance?: number;
+            obs?: string;
+            buffer: any;
+            bufferPath: any;
+            kmDetour: number;
+            percentDetour: string;
+            stats: string;
+            
         };
     };
     LineString: {
         coordinates: number[][];
         coordinatesTacom?: number[][];
-        deviations?: number[][];
+        deviationsSumob: number[][] | [];
+        deviationsTacom: number[][] | [];
+        lineDesviation?: number[][][] | [];
        
     };
 }
